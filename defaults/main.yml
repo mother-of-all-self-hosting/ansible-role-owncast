@@ -14,10 +14,6 @@ owncast_version: 0.0.13
 # The hostname at which owncast is served.
 owncast_hostname: ''
 
-# The path at which owncast is served.
-# This value must either be `/` or not end with a slash (e.g. `/owncast`).
-owncast_path_prefix: /
-
 owncast_base_path: "/{{ owncast_identifier }}"
 owncast_data_path: "{{ owncast_base_path }}/data"
 

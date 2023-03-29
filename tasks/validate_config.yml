@@ -10,7 +10,6 @@
     - owncast_uid
     - owncast_gid
     - owncast_hostname
-    - owncast_path_prefix
     - owncast_container_network
 
 - when: owncast_container_labels_traefik_enabled | bool

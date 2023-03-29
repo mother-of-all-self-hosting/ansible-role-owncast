@@ -7,17 +7,6 @@ traefik.docker.network={{ owncast_container_labels_traefik_docker_network }}
 
 {% set middlewares = [] %}
 
-{% if owncast_container_labels_traefik_path_prefix != '/' %}
-traefik.http.middlewares.{{ owncast_identifier }}-slashless-redirect.redirectregex.regex=({{ owncast_container_labels_traefik_path_prefix | quote }})$
-traefik.http.middlewares.{{ owncast_identifier }}-slashless-redirect.redirectregex.replacement=${1}/
-{% set middlewares = middlewares + [owncast_identifier + '-slashless-redirect'] %}
-{% endif %}
-
-{% if owncast_container_labels_traefik_path_prefix != '/' %}
-traefik.http.middlewares.{{ owncast_identifier }}-strip-prefix.stripprefix.prefixes={{ owncast_container_labels_traefik_path_prefix }}
-{% set middlewares = middlewares + [owncast_identifier + '-strip-prefix'] %}
-{% endif %}
-
 {% if owncast_container_labels_traefik_additional_request_headers.keys() | length > 0 %}
 {% for name, value in owncast_container_labels_traefik_additional_request_headers.items() %}
 traefik.http.middlewares.{{ owncast_identifier }}-add-request-headers.headers.customrequestheaders.{{ name }}={{ value }}
