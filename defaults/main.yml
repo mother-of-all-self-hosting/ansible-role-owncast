@@ -44,9 +44,7 @@ owncast_container_rtmp_bind_port: '1935'
 owncast_container_labels_traefik_enabled: true
 owncast_container_labels_traefik_docker_network: "{{ owncast_container_network }}"
 owncast_container_labels_traefik_hostname: "{{ owncast_hostname }}"
-# The path prefix must either be `/` or not end with a slash (e.g. `/owncast`).
-owncast_container_labels_traefik_path_prefix: "{{ owncast_path_prefix }}"
-owncast_container_labels_traefik_rule: "Host(`{{ owncast_container_labels_traefik_hostname }}`){% if owncast_container_labels_traefik_path_prefix != '/' %} && PathPrefix(`{{ owncast_container_labels_traefik_path_prefix }}`){% endif %}"
+owncast_container_labels_traefik_rule: "Host(`{{ owncast_container_labels_traefik_hostname }}`)"
 owncast_container_labels_traefik_priority: 0
 owncast_container_labels_traefik_entrypoints: web-secure
 owncast_container_labels_traefik_tls: "{{ owncast_container_labels_traefik_entrypoints != 'web' }}"
