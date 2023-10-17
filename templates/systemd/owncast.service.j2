@@ -23,7 +23,7 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
 			--network={{ owncast_container_network }} \
 			--hostname={{ owncast_container_hostname }} \
 			{% if owncast_container_rtmp_bind_port %}
-			-p {{ owncast_container_rtmp_bind_port }}:1935/udp \
+			-p {{ owncast_container_rtmp_bind_port }}:1935/tcp \
 			{% endif %}
 			--env-file={{ owncast_base_path }}/env \
 			--label-file={{ owncast_base_path }}/labels \
