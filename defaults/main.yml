@@ -9,7 +9,7 @@ owncast_identifier: owncast
 owncast_uid: ''
 owncast_gid: ''
 
-owncast_version: 0.1.2
+owncast_version: 0.2.1
 
 # The hostname at which owncast is served.
 owncast_hostname: ''
