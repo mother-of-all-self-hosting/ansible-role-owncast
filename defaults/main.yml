@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: 2023 Julian-Samuel Gebühr
-# SPDX-FileCopyrightText: 2025 Slavi Pantaleev
+# SPDX-FileCopyrightText: 2023 - 2025 Slavi Pantaleev
+# SPDX-FileCopyrightText: 2024 Nikita Chernyi
+# SPDX-FileCopyrightText: 2025 Suguru Hirahara
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -38,10 +40,22 @@ owncast_container_network: "{{ owncast_identifier }}"
 # Use this to expose this container to another reverse proxy, which runs in a different container network.
 owncast_container_additional_networks: []
 
-# Specifies the RTMP port. Changing this could make it impossible to connect your streaming software to your server!
+# Controls whether the container exposes its HTTP port (tcp/8080 in the container).
+#
+# Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:9000"), or empty string to not expose.
+owncast_container_http_host_bind_port: ''
+
+# Controls whether the container exposes its RTMP port (tcp/1935 in the container).
 #
 # Takes an "<ip>:<port>" value (e.g. "127.0.0.1:21027"), just a port number or an empty string to not expose.
-owncast_container_rtmp_bind_port: '1935'
+owncast_container_rtmp_host_bind_port: ''
+
+# The HTTP port number in the container
+owncast_container_http_port: 8080
+
+# The RTMP port number in the container
+# Changing this could make it impossible to connect your streaming software to your server!
+owncast_container_rtmp_port: 1935
 
 # owncast_container_labels_traefik_enabled controls whether labels to assist a Traefik reverse-proxy will be attached to the container.
 # See `../templates/labels.j2` for details.
