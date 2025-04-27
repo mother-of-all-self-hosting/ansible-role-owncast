@@ -14,6 +14,7 @@ owncast_identifier: owncast
 owncast_uid: ''
 owncast_gid: ''
 
+# renovate: datasource=docker depName=gabekangas/owncast versioning=semver
 owncast_version: 0.2.1
 
 # The hostname at which owncast is served.
