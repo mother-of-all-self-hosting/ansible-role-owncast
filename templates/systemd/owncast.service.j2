@@ -1,6 +1,7 @@
 {#
 SPDX-FileCopyrightText: 2023 Julian-Samuel Gebühr
 SPDX-FileCopyrightText: 2025 Slavi Pantaleev
+SPDX-FileCopyrightText: 2025 Suguru Hirahara
 
 SPDX-License-Identifier: AGPL-3.0-or-later
 #}
@@ -31,8 +32,11 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
 			{% if owncast_container_hostname %}
 			--hostname={{ owncast_container_hostname }} \
 			{% endif %}
-			{% if owncast_container_rtmp_bind_port %}
-			-p {{ owncast_container_rtmp_bind_port }}:1935/tcp \
+			{% if owncast_container_http_host_bind_port %}
+			-p {{ owncast_container_http_host_bind_port }}:{{ owncast_container_http_port }} \
+			{% endif %}
+			{% if owncast_container_rtmp_host_bind_port %}
+			-p {{ owncast_container_rtmp_host_bind_port }}:{{ owncast_container_rtmp_port }}/tcp \
 			{% endif %}
 			--env-file={{ owncast_base_path }}/env \
 			--label-file={{ owncast_base_path }}/labels \

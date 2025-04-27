@@ -1,5 +1,6 @@
 {#
 SPDX-FileCopyrightText: 2023 Julian-Samuel Gebühr
+SPDX-FileCopyrightText: 2025 Suguru Hirahara
 
 SPDX-License-Identifier: AGPL-3.0-or-later
 #}
@@ -41,7 +42,7 @@ traefik.http.routers.{{ owncast_identifier }}.tls={{ owncast_container_labels_tr
 traefik.http.routers.{{ owncast_identifier }}.tls.certResolver={{ owncast_container_labels_traefik_tls_certResolver }}
 {% endif %}
 
-traefik.http.services.{{ owncast_identifier }}.loadbalancer.server.port=8080
+traefik.http.services.{{ owncast_identifier }}.loadbalancer.server.port={{ owncast_container_http_port }}
 {% endif %}
 
 {{ owncast_container_labels_additional_labels }}
