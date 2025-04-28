@@ -26,7 +26,7 @@
     - env
     - labels
 
-- name: Ensure owncast container image is pulled
+- name: Ensure Owncast container image is pulled
   community.docker.docker_image:
     name: "{{ owncast_container_image }}"
     source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
@@ -37,12 +37,12 @@
   delay: "{{ devture_playbook_help_container_retries_delay }}"
   until: result is not failed
 
-- name: Ensure owncast container network is created
+- name: Ensure Owncast container network is created
   community.general.docker_network:
     name: "{{ owncast_container_network }}"
     driver: bridge
 
-- name: Ensure owncast systemd service is present
+- name: Ensure Owncast systemd service is present
   ansible.builtin.template:
     mode: 0755
     src: "{{ role_path }}/templates/systemd/owncast.service.j2"

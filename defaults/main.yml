@@ -22,7 +22,7 @@ owncast_version: 0.2.1
 owncast_uid: ''
 owncast_gid: ''
 
-# The hostname at which owncast is served.
+# The hostname at which Owncast is served.
 owncast_hostname: ''
 
 owncast_container_image: "{{ owncast_container_image_registry_prefix }}gabekangas/owncast:{{ owncast_container_image_tag }}"
