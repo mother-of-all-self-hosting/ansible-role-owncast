@@ -4,7 +4,7 @@
 
 ---
 
-- name: Fail if required owncast settings not defined
+- name: Fail if required Owncast settings not defined
   ansible.builtin.fail:
     msg: >
       You need to define a required configuration setting (`{{ item }}`).
@@ -18,7 +18,7 @@
 
 - when: owncast_container_labels_traefik_enabled | bool
   block:
-    - name: Fail if required owncast Traefik settings not defined
+    - name: Fail if required Owncast Traefik settings not defined
       ansible.builtin.fail:
         msg: >-
           You need to define a required configuration setting (`{{ item }}`).

@@ -4,26 +4,26 @@
 
 ---
 
-- name: Check existence of owncast systemd service
+- name: Check existence of Owncast systemd service
   ansible.builtin.stat:
     path: "{{ devture_systemd_docker_base_systemd_path }}/{{ owncast_identifier }}.service"
   register: owncast_service_stat
 
 - when: owncast_service_stat.stat.exists | bool
   block:
-    - name: Ensure owncast systemd service is stopped
+    - name: Ensure Owncast systemd service is stopped
       ansible.builtin.service:
         name: "{{ owncast_identifier }}"
         state: stopped
         enabled: false
         daemon_reload: true
 
-    - name: Ensure owncast systemd service does not exist
+    - name: Ensure Owncast systemd service does not exist
       ansible.builtin.file:
         path: "{{ devture_systemd_docker_base_systemd_path }}/{{ owncast_identifier }}.service"
         state: absent
 
-    - name: Ensure owncast path doesn't exist
+    - name: Ensure Owncast path doesn't exist
       ansible.builtin.file:
         path: "{{ owncast_base_path }}"
         state: absent
