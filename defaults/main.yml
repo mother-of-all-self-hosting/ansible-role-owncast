@@ -180,6 +180,9 @@ owncast_systemd_required_services_list_default: "{{ [devture_systemd_docker_base
 owncast_systemd_required_services_list_auto: []
 owncast_systemd_required_services_list_custom: []
 
+# List of systemd services that the Owncast systemd service wants
+owncast_systemd_wanted_services_list: []
+
 owncast_basicauth_enabled: true
 
 # Additional environment variables.
