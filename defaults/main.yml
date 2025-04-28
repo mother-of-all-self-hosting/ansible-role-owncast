@@ -1,6 +1,8 @@
 # SPDX-FileCopyrightText: 2023 Julian-Samuel Gebühr
+# SPDX-FileCopyrightText: 2023 - 2024 Nikita Chernyi
 # SPDX-FileCopyrightText: 2023 - 2025 Slavi Pantaleev
-# SPDX-FileCopyrightText: 2024 Nikita Chernyi
+# SPDX-FileCopyrightText: 2024 Sergio Durigan Junior
+# SPDX-FileCopyrightText: 2025 MASH project contributors
 # SPDX-FileCopyrightText: 2025 Suguru Hirahara
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
@@ -24,8 +26,10 @@ owncast_gid: ''
 owncast_hostname: ''
 
 owncast_container_image: "{{ owncast_container_image_registry_prefix }}gabekangas/owncast:{{ owncast_container_image_tag }}"
-owncast_container_image_registry_prefix: docker.io/
 owncast_container_image_tag: "{{ owncast_version }}"
+owncast_container_image_registry_prefix: "{{ owncast_container_image_registry_prefix_upstream }}"
+owncast_container_image_registry_prefix_upstream: "{{ owncast_container_image_registry_prefix_upstream_default }}"
+owncast_container_image_registry_prefix_upstream_default: docker.io/
 owncast_container_image_force_pull: "{{ owncast_container_image.endswith(':latest') }}"
 
 # Controls whether the container exposes its HTTP port (tcp/8080 in the container).
