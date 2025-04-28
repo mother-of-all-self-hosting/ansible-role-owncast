@@ -174,8 +174,11 @@ owncast_floc_optout_enabled: true
 # See: `owncast_http_header_strict_transport_security`
 owncast_hsts_preload_enabled: false
 
-# List of systemd services that owncast.service depends on
-owncast_systemd_required_services_list: ['docker.service']
+# List of systemd services that the Owncast systemd service depends on
+owncast_systemd_required_services_list: "{{ owncast_systemd_required_services_list_default + owncast_systemd_required_services_list_auto + owncast_systemd_required_services_list_custom }}"
+owncast_systemd_required_services_list_default: "{{ [devture_systemd_docker_base_docker_service_name] if devture_systemd_docker_base_docker_service_name else [] }}"
+owncast_systemd_required_services_list_auto: []
+owncast_systemd_required_services_list_custom: []
 
 owncast_basicauth_enabled: true
 
