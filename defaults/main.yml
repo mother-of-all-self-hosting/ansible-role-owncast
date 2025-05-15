@@ -17,7 +17,7 @@ owncast_base_path: "/{{ owncast_identifier }}"
 owncast_data_path: "{{ owncast_base_path }}/data"
 
 # renovate: datasource=docker depName=gabekangas/owncast versioning=semver
-owncast_version: 0.2.1
+owncast_version: 0.2.3
 
 owncast_uid: ''
 owncast_gid: ''
