@@ -46,6 +46,6 @@
 
 - name: Ensure Owncast systemd service is present
   ansible.builtin.template:
-    mode: 0755
     src: "{{ role_path }}/templates/systemd/owncast.service.j2"
     dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ owncast_identifier }}.service"
+    mode: 0644
