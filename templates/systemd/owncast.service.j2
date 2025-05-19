@@ -5,7 +5,6 @@ SPDX-FileCopyrightText: 2025 Slavi Pantaleev
 SPDX-License-Identifier: AGPL-3.0-or-later
 #}
 
-#jinja2: lstrip_blocks: "True"
 [Unit]
 Description=Owncast Server ({{ owncast_identifier }})
 {% for service in owncast_systemd_required_services_list %}
