@@ -3,13 +3,13 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 ---
-
 - name: Check existence of Owncast systemd service
   ansible.builtin.stat:
     path: "{{ devture_systemd_docker_base_systemd_path }}/{{ owncast_identifier }}.service"
   register: owncast_service_stat
 
-- when: owncast_service_stat.stat.exists | bool
+- name: Uninstall Owncast systemd services and files
+  when: owncast_service_stat.stat.exists | bool
   block:
     - name: Ensure Owncast systemd service is stopped
       ansible.builtin.service:

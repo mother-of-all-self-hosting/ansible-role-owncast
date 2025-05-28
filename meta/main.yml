@@ -1,3 +1,4 @@
+---
 # SPDX-FileCopyrightText: 2023 Julian-Samuel Gebühr
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
@@ -22,4 +23,4 @@ galaxy_info:
       versions:
         - "7"
   license: AGPL-3.0-or-later
-  min_ansible_version: '2.1'
+  min_ansible_version: "2.1"

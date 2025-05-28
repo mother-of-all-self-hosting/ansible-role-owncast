@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 ---
-
 - name: Fail if required Owncast settings not defined
   ansible.builtin.fail:
     msg: >
@@ -16,7 +15,8 @@
     - owncast_hostname
     - owncast_container_network
 
-- when: owncast_container_labels_traefik_enabled | bool
+- name: Run if Traefik is enabled
+  when: owncast_container_labels_traefik_enabled | bool
   block:
     - name: Fail if required Owncast Traefik settings not defined
       ansible.builtin.fail:

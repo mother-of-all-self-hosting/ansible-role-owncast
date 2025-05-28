@@ -4,27 +4,25 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 ---
-
 - name: Perform Owncast installation tasks
-  block:
-    - name: Validate Owncast configuration
-      when: owncast_enabled | bool
-      ansible.builtin.include_tasks: "{{ role_path }}/tasks/validate_config.yml"
-
-    - name: Install Owncast
-      when: owncast_enabled | bool
-      ansible.builtin.include_tasks: "{{ role_path }}/tasks/install.yml"
   tags:
     - setup-all
     - setup-owncast
     - install-all
     - install-owncast
+  block:
+    - name: Validate Owncast configuration
+      when: owncast_enabled | bool
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/validate_config.yml"
+    - name: Install Owncast
+      when: owncast_enabled | bool
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/install.yml"
 
 - name: Perform Owncast uninstallation tasks
+  tags:
+    - setup-all
+    - setup-owncast
   block:
     - name: Uninstall Owncast
       when: not owncast_enabled | bool
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/uninstall.yml"
-  tags:
-    - setup-all
-    - setup-owncast
