@@ -32,6 +32,12 @@ owncast_container_image_registry_prefix_upstream: "{{ owncast_container_image_re
 owncast_container_image_registry_prefix_upstream_default: docker.io/
 owncast_container_image_force_pull: "{{ owncast_container_image.endswith(':latest') }}"
 
+owncast_container_image_self_build: false
+owncast_container_image_name: "owncast/owncast:{{ owncast_container_repo_version }}"
+owncast_container_repo: "https://github.com/owncast/owncast.git"
+owncast_container_repo_version: "{{ 'v' + owncast_version if owncast_version != 'latest' else 'main' }}"
+owncast_container_src_files_path: "{{ owncast_base_path }}/docker-src"
+
 # Controls whether the container exposes its HTTP port (tcp/8080 in the container).
 #
 # Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:9000"), or empty string to not expose.
