@@ -46,7 +46,7 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
       {% for arg in owncast_container_extra_arguments %}
       {{ arg }} \
       {% endfor %}
-      {{ owncast_container_image }}
+      {{ owncast_container_image_self_build_name if owncast_container_image_self_build else owncast_container_image }}
 
 {% for network in owncast_container_additional_networks %}
 ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} network connect {{ network }} {{ owncast_identifier }}
