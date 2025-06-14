@@ -55,21 +55,21 @@
   block:
     - name: Ensure Owncast repository is present on self-build
       ansible.builtin.git:
-        repo: "{{ owncast_container_repo }}"
-        version: "{{ owncast_container_repo_version }}"
-        dest: "{{ owncast_container_src_files_path }}"
+        repo: "{{ owncast_container_image_self_build_repo }}"
+        version: "{{ owncast_container_image_self_build_repo_version }}"
+        dest: "{{ owncast_container_image_self_build_src_files_path }}"
         force: "yes"
       register: owncast_git_pull_results
 
     - name: Ensure Owncast container image is built
       community.docker.docker_image:
-        name: "{{ owncast_container_image_name }}"
+        name: "{{ owncast_container_image_self_build_name }}"
         source: build
         force_source: "{{ owncast_git_pull_results.changed if ansible_version.major > 2 or ansible_version.minor >= 8 else omit }}"
         force: "{{ omit if ansible_version.major > 2 or ansible_version.minor >= 8 else owncast_git_pull_results.changed }}"
         build:
           dockerfile: Dockerfile
-          path: "{{ owncast_container_src_files_path }}"
+          path: "{{ owncast_container_image_self_build_src_files_path }}"
           pull: true
           args:
 
