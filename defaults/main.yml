@@ -25,6 +25,8 @@ owncast_gid: ''
 # The hostname at which Owncast is served.
 owncast_hostname: ''
 
+owncast_path_prefix: /
+
 owncast_container_image: "{{ owncast_container_image_registry_prefix }}gabekangas/owncast:{{ owncast_container_image_tag }}"
 owncast_container_image_tag: "{{ owncast_version }}"
 owncast_container_image_registry_prefix: "{{ owncast_container_image_registry_prefix_upstream }}"
@@ -81,7 +83,9 @@ owncast_container_additional_volumes_custom: []
 owncast_container_labels_traefik_enabled: true
 owncast_container_labels_traefik_docker_network: "{{ owncast_container_network }}"
 owncast_container_labels_traefik_hostname: "{{ owncast_hostname }}"
-owncast_container_labels_traefik_rule: "Host(`{{ owncast_container_labels_traefik_hostname }}`)"
+# The path prefix must either be `/` or not end with a slash (e.g. `/owncast`).
+owncast_container_labels_traefik_path_prefix: "{{ owncast_path_prefix }}"
+owncast_container_labels_traefik_rule: "Host(`{{ owncast_container_labels_traefik_hostname }}`){% if owncast_container_labels_traefik_path_prefix != '/' %} && PathPrefix(`{{ owncast_container_labels_traefik_path_prefix }}`){% endif %}"
 owncast_container_labels_traefik_priority: 0
 owncast_container_labels_traefik_entrypoints: web-secure
 owncast_container_labels_traefik_tls: "{{ owncast_container_labels_traefik_entrypoints != 'web' }}"
