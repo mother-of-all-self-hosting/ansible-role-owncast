@@ -10,21 +10,34 @@ SPDX-FileCopyrightText: 2022 Julian Foad
 SPDX-FileCopyrightText: 2022 Warren Bailey
 SPDX-FileCopyrightText: 2023 Antonis Christofides
 SPDX-FileCopyrightText: 2023 Felix Stupp
+SPDX-FileCopyrightText: 2023 Julian-Samuel Gebühr
 SPDX-FileCopyrightText: 2023 Pierre 'McFly' Marty
 SPDX-FileCopyrightText: 2024 - 2025 Suguru Hirahara
+SPDX-FileCopyrightText: 2024 MASH project contributors
+SPDX-FileCopyrightText: 2024 Sergio Durigan Junior
 
 SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 # Setting up Owncast
 
-This is an [Ansible](https://www.ansible.com/) role which installs [Owncast](https://github.com/httpjamesm/Owncast) to run as a [Docker](https://www.docker.com/) container wrapped in a systemd service.
+This is an [Ansible](https://www.ansible.com/) role which installs [Owncast](https://owncast.online) to run as a [Docker](https://www.docker.com/) container wrapped in a systemd service.
 
-Owncast allows you to view StackOverflow threads without exposing your IP address, browsing habits, and other browser fingerprinting data to the website.
+Owncast is a free and open source live video and web chat server for use with existing popular broadcasting software.
 
-See the project's [documentation](https://github.com/httpjamesm/Owncast/blob/main/README.md) to learn what Owncast does and why it might be useful to you.
+See the project's [documentation](https://owncast.online/docs/) to learn what Owncast does and why it might be useful to you.
 
-[<img src="assets/home_dark.webp" title="Home screen in dark mode" width="600" alt="Home screen in dark mode">](assets/home_dark.webp) [<img src="assets/question_dark.webp" title="Question in dark mode" width="600" alt="Question in dark mode">](assets/question_dark.webp) [<img src="assets/answers_light.webp" title="Answer in light mode" width="600" alt="Answer in light mode">](assets/answers_light.webp)
+## Prerequisites
+
+### Open ports
+
+You may need to open the following ports on your server:
+
+- `1935` over **TCP**, controlled by `owncast_container_rtmp_bind_port` — used for TCP based [RTMP](https://en.wikipedia.org/wiki/Real-Time_Messaging_Protocol)
+
+Docker automatically opens the port in the server's firewall, so you likely don't need to do anything. If you use another firewall in front of the server, you may need to adjust it.
+
+By default, the port will be exposed by the container on **all network interfaces**.
 
 ## Adjusting the playbook configuration
 
@@ -68,8 +81,6 @@ Take a look at:
 
 - [`defaults/main.yml`](../defaults/main.yml) for some variables that you can customize via your `vars.yml` file. You can override settings (even those that don't have dedicated playbook variables) using the `owncast_environment_variables_additional_variables` variable
 
-See its [`docker-compose.example.yml`](https://github.com/httpjamesm/Owncast/blob/main/docker-compose.example.yml) for a complete list of Owncast's config options that you could put in `owncast_environment_variables_additional_variables`.
-
 ## Installing
 
 After configuring the playbook, run the installation command of your playbook as below:
@@ -82,11 +93,12 @@ If you use the MASH playbook, the shortcut commands with the [`just` program](ht
 
 ## Usage
 
-After running the command for installation, Owncast becomes available at the specified hostname like `https://example.com`.
+After running the command for installation, the Owncast instance becomes available at the URL specified with `owncast_hostname`. With the configuration above, the service is hosted at `https://example.com`.
 
-[Libredirect](https://libredirect.github.io/), an extension for Firefox and Chromium-based desktop browsers, has support for redirections to Owncast. See [this section](https://github.com/httpjamesm/Owncast/blob/main/README.md#how-to-make-stack-overflow-links-take-you-to-owncast-automatically) on the official documentation for more information.
+To get started, open the URL `https://owncast.example.com/admin` with a web browser.
 
-If you would like to make your instance public so that it can be used by anyone including Libredirect, please consider to send a PR to the [upstream project](https://github.com/httpjamesm/Owncast) to add yours to [`instances.json`](https://github.com/httpjamesm/Owncast/blob/main/instances.json), which Libredirect automatically fetches using a script (see [this FAQ entry](https://libredirect.github.io/faq.html#where_the_hell_are_those_instances_coming_from)).
+>[!NOTE]
+> Change the default stream key set to `abc123` as soon as possible.
 
 ## Troubleshooting
 
