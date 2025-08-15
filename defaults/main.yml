@@ -48,7 +48,7 @@ owncast_container_http_host_bind_port: ''
 # Controls whether the container exposes its RTMP port (tcp/1935 in the container).
 #
 # Takes an "<ip>:<port>" value (e.g. "127.0.0.1:21027"), just a port number or an empty string to not expose.
-owncast_container_rtmp_host_bind_port: ''
+owncast_container_rtmp_host_bind_port: "{{ owncast_container_rtmp_port }}"
 
 # The base container network. It will be auto-created by this role if it doesn't exist already.
 owncast_container_network: "{{ owncast_identifier }}"
