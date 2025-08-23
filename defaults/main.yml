@@ -193,7 +193,10 @@ owncast_systemd_required_services_list_auto: []
 owncast_systemd_required_services_list_custom: []
 
 # List of systemd services that the Owncast systemd service wants
-owncast_systemd_wanted_services_list: []
+owncast_systemd_wanted_services_list: "{{ owncast_systemd_wanted_services_list_default + owncast_systemd_wanted_services_list_auto + owncast_systemd_wanted_services_list_custom }}"
+owncast_systemd_wanted_services_list_default: []
+owncast_systemd_wanted_services_list_auto: []
+owncast_systemd_wanted_services_list_custom: []
 
 owncast_basicauth_enabled: true
 
