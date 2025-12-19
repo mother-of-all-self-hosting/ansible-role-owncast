@@ -22,6 +22,7 @@
     - owncast_uid
     - owncast_gid
     - owncast_hostname
+    - owncast_path_prefix
     - owncast_container_network
 
 - name: Run if Traefik is enabled
