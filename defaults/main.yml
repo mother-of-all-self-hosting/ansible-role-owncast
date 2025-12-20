@@ -113,12 +113,15 @@ owncast_container_labels_traefik_additional_response_headers_custom: {}
 
 # owncast_container_labels_additional_labels contains a multiline string with additional labels to add to the container label file.
 # See `../templates/labels.j2` for details.
+# To add your own custom labels, use `owncast_container_labels_additional_labels_custom`
 #
 # Example:
-# owncast_container_labels_additional_labels: |
+# owncast_container_labels_additional_labels_custom: |
 #   my.label=1
 #   another.label="here"
-owncast_container_labels_additional_labels: ''
+owncast_container_labels_additional_labels: "{{ owncast_container_labels_additional_labels_auto | combine(owncast_container_labels_additional_labels_custom) }}"
+owncast_container_labels_additional_labels_auto: {}
+owncast_container_labels_additional_labels_custom: {}
 
 # Specifies how often the container health-check will run.
 #
