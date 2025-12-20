@@ -137,7 +137,9 @@ owncast_container_health_interval: "{{ '5s' if owncast_container_labels_traefik_
 owncast_container_hostname: ''
 
 # A list of extra arguments to pass to the container
-owncast_container_extra_arguments: []
+owncast_container_extra_arguments: "{{ owncast_container_extra_arguments_auto + owncast_container_extra_arguments_custom }}"
+owncast_container_extra_arguments_auto: []
+owncast_container_extra_arguments_custom: []
 
 # Specifies the value of the `X-XSS-Protection` header
 # Stops pages from loading when they detect reflected cross-site scripting (XSS) attacks.
