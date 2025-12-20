@@ -198,6 +198,9 @@ owncast_systemd_wanted_services_list_default: []
 owncast_systemd_wanted_services_list_auto: []
 owncast_systemd_wanted_services_list_custom: []
 
+# Specify the timezone
+owncast_environment_variables_tz: UTC
+
 owncast_basicauth_enabled: true
 
 # Additional environment variables.
