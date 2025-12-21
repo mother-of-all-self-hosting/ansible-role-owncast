@@ -19,11 +19,11 @@ owncast_data_path: "{{ owncast_base_path }}/data"
 # renovate: datasource=docker depName=gabekangas/owncast versioning=semver
 owncast_version: 0.2.3
 
-owncast_uid: ''
-owncast_gid: ''
+owncast_uid: ""
+owncast_gid: ""
 
 # The hostname at which Owncast is served.
-owncast_hostname: ''
+owncast_hostname: ""
 
 owncast_path_prefix: /
 
@@ -43,7 +43,7 @@ owncast_container_image_self_build_src_files_path: "{{ owncast_base_path }}/dock
 # Controls whether the container exposes its HTTP port (tcp/8080 in the container).
 #
 # Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:9000"), or empty string to not expose.
-owncast_container_http_host_bind_port: ''
+owncast_container_http_host_bind_port: ""
 
 # Controls whether the container exposes its RTMP port (tcp/1935 in the container).
 #
@@ -137,7 +137,7 @@ owncast_container_health_interval: "{{ '5s' if owncast_container_labels_traefik_
 # Intentionally leaving this blank, instead of defaulting it to `headscale_hostname`, to avoid specifying a hostname
 # which could render other services on that hostname potentially unreachable.
 # See: https://github.com/mother-of-all-self-hosting/mash-playbook/issues/391
-owncast_container_hostname: ''
+owncast_container_hostname: ""
 
 # A list of extra arguments to pass to the container (`docker create` command)
 owncast_container_extra_arguments: "{{ owncast_container_extra_arguments_auto + owncast_container_extra_arguments_custom }}"
@@ -209,4 +209,4 @@ owncast_environment_variables_tz: UTC
 owncast_basicauth_enabled: true
 
 # Additional environment variables.
-owncast_environment_variables_additional_variables: ''
+owncast_environment_variables_additional_variables: ""
