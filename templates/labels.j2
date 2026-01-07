@@ -56,4 +56,6 @@ traefik.http.routers.{{ owncast_identifier }}.tls.certResolver={{ owncast_contai
 traefik.http.services.{{ owncast_identifier }}.loadbalancer.server.port={{ owncast_container_http_port }}
 {% endif %}
 
-{{ owncast_container_labels_additional_labels }}
+{% for arg in owncast_container_labels_additional_labels %}
+{{ arg }}
+{% endfor %}
