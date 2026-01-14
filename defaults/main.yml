@@ -25,6 +25,8 @@ owncast_gid: ""
 # The hostname at which Owncast is served.
 owncast_hostname: ""
 
+# The path at which Owncast is served.
+# This value must either be `/` or not end with a slash (e.g. `/owncast`).
 owncast_path_prefix: /
 
 owncast_container_image: "{{ owncast_container_image_registry_prefix }}gabekangas/owncast:{{ owncast_container_image_tag }}"
@@ -42,7 +44,7 @@ owncast_container_image_self_build_src_files_path: "{{ owncast_base_path }}/dock
 
 # Controls whether the container exposes its HTTP port (tcp/8080 in the container).
 #
-# Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:9000"), or empty string to not expose.
+# Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:2586"), or empty string to not expose.
 owncast_container_http_host_bind_port: ""
 
 # Controls whether the container exposes its RTMP port (tcp/1935 in the container).
