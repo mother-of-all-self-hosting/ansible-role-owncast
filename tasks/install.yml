@@ -36,20 +36,20 @@
         source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
         force_source: "{{ owncast_container_image_force_pull if ansible_version.major > 2 or ansible_version.minor >= 8 else omit }}"
         force: "{{ omit if ansible_version.major > 2 or ansible_version.minor >= 8 else owncast_container_image_force_pull }}"
-      register: owncast_container_image_pull_result
+      register: owncast_container_image_pull_result_ansible_module
       retries: "{{ devture_playbook_help_container_retries_count }}"
       delay: "{{ devture_playbook_help_container_retries_delay }}"
-      until: owncast_container_image_pull_result is not failed
+      until: owncast_container_image_pull_result_ansible_module is not failed
 
     - name: Ensure Owncast container image is pulled via ansible.builtin.command
       when: devture_systemd_docker_base_container_image_pull_method == 'command'
       ansible.builtin.command:
         cmd: "{{ devture_systemd_docker_base_host_command_docker }} pull {{ owncast_container_image }}"
-      register: owncast_container_image_pull_result
+      register: owncast_container_image_pull_result_command
       retries: "{{ devture_playbook_help_container_retries_count }}"
       delay: "{{ devture_playbook_help_container_retries_delay }}"
-      until: owncast_container_image_pull_result is not failed
-      changed_when: "'Downloaded newer image' in owncast_container_image_pull_result.stdout"
+      until: owncast_container_image_pull_result_command is not failed
+      changed_when: "'Downloaded newer image' in owncast_container_image_pull_result_command.stdout"
 
 - name: Run if self-building of Owncast container image is enabled
   when: "owncast_container_image_self_build | bool"
@@ -109,6 +109,7 @@
       {{
         owncast_support_files_result.changed | default(false)
         or owncast_systemd_service_result.changed | default(false)
-        or owncast_container_image_pull_result.changed | default(false)
+        or owncast_container_image_pull_result_ansible_module.changed | default(false)
+        or owncast_container_image_pull_result_command.changed | default(false)
         or owncast_container_image_build_result.changed | default(false)
       }}
