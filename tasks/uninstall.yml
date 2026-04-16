@@ -38,7 +38,7 @@
         path: "{{ owncast_container_image_self_build_src_files_path }}"
         state: absent
 
-    - name: Ensure Owncast local data path if empty
+    - name: Ensure Owncast local data path does not exist if empty
       ansible.builtin.command:
         cmd: "rmdir {{ owncast_data_path }}"
       register: owncast_data_path_deletion_result
