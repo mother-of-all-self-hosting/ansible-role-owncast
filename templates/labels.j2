@@ -1,6 +1,7 @@
 {#
 SPDX-FileCopyrightText: 2023 Julian-Samuel Gebühr
-SPDX-FileCopyrightText: 2025 Suguru Hirahara
+SPDX-FileCopyrightText: 2023 Slavi Pantaleev
+SPDX-FileCopyrightText: 2025, 2026 Suguru Hirahara
 
 SPDX-License-Identifier: AGPL-3.0-or-later
 #}
@@ -54,6 +55,52 @@ traefik.http.routers.{{ owncast_identifier }}.tls.certResolver={{ owncast_contai
 {% endif %}
 
 traefik.http.services.{{ owncast_identifier }}.loadbalancer.server.port={{ owncast_container_http_port }}
+
+{% if owncast_container_labels_traefik_metrics_enabled %}
+########################################################################
+#                                                                      #
+# Metrics                                                              #
+#                                                                      #
+########################################################################
+
+{% set middlewares = owncast_container_labels_traefik_metrics_middlewares %}
+
+{% if owncast_container_labels_traefik_metrics_middleware_basic_auth_enabled %}
+traefik.http.middlewares.{{ owncast_identifier }}-metrics-basic-auth.basicauth.users={{ owncast_container_labels_traefik_metrics_middleware_basic_auth_users }}
+{% set middlewares = middlewares + [owncast_identifier + '-metrics-basic-auth'] %}
+{% endif %}
+
+traefik.http.middlewares.{{ owncast_identifier }}-metrics-replace-path.replacepath.path=/api/admin/prometheus
+{% set middlewares = middlewares + [owncast_identifier + '-metrics-replace-path'] %}
+
+traefik.http.routers.{{ owncast_identifier }}-metrics.rule={{ owncast_container_labels_traefik_metrics_rule }}
+
+{% if owncast_container_labels_traefik_metrics_priority | int > 0 %}
+traefik.http.routers.{{ owncast_identifier }}-metrics.priority={{ owncast_container_labels_traefik_metrics_priority }}
+{% endif %}
+
+traefik.http.routers.{{ owncast_identifier }}-metrics.service={{ owncast_identifier }}-metrics
+
+{% if middlewares | length > 0 %}
+traefik.http.routers.{{ owncast_identifier }}-metrics.middlewares={{ middlewares | join(',') }}
+{% endif %}
+
+traefik.http.routers.{{ owncast_identifier }}-metrics.entrypoints={{ owncast_container_labels_traefik_metrics_entrypoints }}
+
+traefik.http.routers.{{ owncast_identifier }}-metrics.tls={{ owncast_container_labels_traefik_metrics_tls | to_json }}
+{% if owncast_container_labels_traefik_metrics_tls %}
+traefik.http.routers.{{ owncast_identifier }}-metrics.tls.certResolver={{ owncast_container_labels_traefik_metrics_tls_certResolver }}
+{% endif %}
+
+traefik.http.services.{{ owncast_identifier }}-metrics.loadbalancer.server.port={{ owncast_container_http_port }}
+
+########################################################################
+#                                                                      #
+# /Metrics                                                             #
+#                                                                      #
+########################################################################
+{% endif %}
+
 {% endif %}
 
 {% for arg in owncast_container_labels_additional_labels %}
