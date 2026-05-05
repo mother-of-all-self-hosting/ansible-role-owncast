@@ -34,7 +34,6 @@ owncast_container_image_tag: "{{ owncast_version }}"
 owncast_container_image_registry_prefix: "{{ owncast_container_image_registry_prefix_upstream }}"
 owncast_container_image_registry_prefix_upstream: "{{ owncast_container_image_registry_prefix_upstream_default }}"
 owncast_container_image_registry_prefix_upstream_default: docker.io/
-owncast_container_image_force_pull: "{{ owncast_container_image.endswith(':latest') }}"
 
 owncast_container_image_self_build: false
 owncast_container_image_self_build_name: "owncast/owncast:{{ owncast_container_image_self_build_repo_version }}"
