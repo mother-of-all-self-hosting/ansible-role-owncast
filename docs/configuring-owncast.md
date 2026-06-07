@@ -23,7 +23,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 This is an [Ansible](https://www.ansible.com/) role which installs [Owncast](https://owncast.online) to run as a [Docker](https://www.docker.com/) container wrapped in a systemd service.
 
-Owncast is a free and open source live video and web chat server for use with existing popular broadcasting software.
+Owncast is a free and open-source live video and web chat server for use with existing popular broadcasting software.
 
 See the project's [documentation](https://owncast.online/docs/) to learn what Owncast does and why it might be useful to you.
 
