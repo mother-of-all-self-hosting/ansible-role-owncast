@@ -27,6 +27,10 @@ provisioner:
   inventory:
     group_vars:
       all:
+        # Helper variables
+        owncast_debug_service_enabled: false
+
+        # Variables for Owncast
         owncast_uid: 1000
         owncast_gid: 1000
         owncast_hostname: owncast
