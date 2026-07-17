@@ -33,7 +33,7 @@ provisioner:
         # Variables for Owncast
         owncast_uid: 1000
         owncast_gid: 1000
-        owncast_hostname: owncast
+        owncast_hostname: localhost
         owncast_container_labels_traefik_enabled: false
         owncast_container_http_host_bind_port: 8080
   env:
