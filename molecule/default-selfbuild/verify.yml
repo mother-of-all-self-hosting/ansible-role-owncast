@@ -1,0 +1,53 @@
+# SPDX-FileCopyrightText: 2026 Suguru Hirahara
+# SPDX-FileCopyrightText: 2026 spatterlight
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+---
+- name: Verify Owncast systemd service
+  hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Wait for Owncast service to become active (up to 180s)
+      ansible.builtin.systemd:
+        name: owncast.service
+      register: owncast_service
+      until: owncast_service.status.ActiveState == 'active'
+      retries: 36
+      delay: 5
+
+    - name: Assert Owncast service is active
+      ansible.builtin.assert:
+        that: owncast_service.status.ActiveState == 'active'
+        fail_msg: "owncast.service not active ({{ owncast_service.status.ActiveState }})"
+        success_msg: "owncast.service is active"
+
+    - name: Retrieve Owncast service log for debugging
+      when: owncast_debug_service_enabled | bool
+      ansible.builtin.command:
+        cmd: journalctl -xeu owncast.service
+      changed_when: false
+
+    - name: Wait for Owncast HTTP endpoint to respond (up to 10m)
+      ansible.builtin.uri:
+        url: "http://localhost:8080/"
+        method: GET
+        status_code: [200, 302]
+        follow_redirects: none
+      register: owncast_endpoint
+      until: owncast_endpoint.status in [200, 302]
+      retries: 120
+      delay: 5
+
+    - name: Assert Owncast HTTP endpoint responds
+      ansible.builtin.assert:
+        that: owncast_endpoint.status in [200, 302]
+        fail_msg: "Owncast did not respond as expected ({{ owncast_endpoint.status | default('no response') }})"
+        success_msg: "Owncast responded with {{ owncast_endpoint.status }}"
+
+    - name: Show Owncast systemd service status summary
+      ansible.builtin.debug:
+        msg:
+          - "Owncast systemd: {{ owncast_service.status.ActiveState }}"
+          - "Owncast HTTP: {{ owncast_endpoint.status }}"
