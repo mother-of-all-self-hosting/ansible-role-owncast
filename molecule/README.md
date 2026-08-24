@@ -53,6 +53,18 @@ Tests a standard Owncast installation.
 
 Tests a standard Owncast installation with self-building the container image.
 
+## What the scenarios verify
+
+Owncast serves its web interface, and answers its public API, from the moment it starts — there is no setup wizard to walk through, and no configuration it insists on before it will run. A plain `docker run` of the upstream image therefore passes any check that stops at "something answered over HTTP", which is why the scenarios go further:
+
+- the version Owncast reports over its API is the one `owncast_version` asks for, so that a bump to a tag that does not exist, or that cannot serve, fails here (self-built images are exempt — upstream's `Dockerfile` stamps the version from a `VERSION` build argument that this role does not pass, and defaults it to `dev`)
+- the administration API refuses unauthenticated requests and wrong passwords, and serves the server configuration to a correct one — which it can only do out of the database in the data directory the role provisioned
+- Owncast listens on the same ports that the role publishes
+- the container runs the way the role asks for: as an unprivileged user, with a read-only root filesystem, with all capabilities dropped, on its own container network, and from the image the scenario selected
+- the RTMP ingest server accepts a broadcast that names the stream key the administration API reports, and refuses one that does not
+
+The RTMP probe ([`files/rtmp-probe.py`](files/rtmp-probe.py)) speaks enough of the protocol to complete a handshake, open a connection and offer a stream key, which is the point at which Owncast commits to accepting or refusing the broadcast. It deliberately stops there rather than pushing video, so that no broadcasting software (`ffmpeg`, OBS) is needed to run the tests.
+
 ## Running
 
 By default it is configured to run the scenarios on Ubuntu 26.04.

@@ -37,6 +37,7 @@ provisioner:
         owncast_hostname: localhost
         owncast_container_labels_traefik_enabled: false
         owncast_container_http_host_bind_port: 8080
+        owncast_container_rtmp_host_bind_port: 1935
   env:
     # Workaround for https://github.com/ansible/molecule/issues/4391
     ANSIBLE_ROLES_PATH: ${MOLECULE_PROJECT_DIRECTORY}/..:/.ansible/roles:/usr/share/ansible/roles:/etc/ansible/roles:~/.ansible/roles
