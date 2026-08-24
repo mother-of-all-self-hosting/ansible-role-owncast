@@ -33,7 +33,7 @@ See the project's [documentation](https://owncast.online/docs/) to learn what Ow
 
 You may need to open the following port on your server:
 
-- `1935` over **TCP**, controlled by `owncast_container_http_host_bind_port` — used for TCP based [RTMP](https://en.wikipedia.org/wiki/Real-Time_Messaging_Protocol)
+- `1935` over **TCP**, controlled by `owncast_container_rtmp_host_bind_port` — used for TCP based [RTMP](https://en.wikipedia.org/wiki/Real-Time_Messaging_Protocol)
 
 Docker automatically opens the port in the server's firewall, so you likely don't need to do anything. If you use another firewall in front of the server, you may need to adjust it.
 
