@@ -3,7 +3,7 @@ galaxy_info:
   author: Julian-Samuel Gebühr
   company: Hyteck
   role_name: owncast
-  namespace: moanos
+  namespace: mash
   description: Live video streaming and web chat server for use with existing popular broadcasting software.
   platforms:
     - name: Debian
