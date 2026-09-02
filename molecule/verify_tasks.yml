@@ -1,0 +1,295 @@
+# SPDX-FileCopyrightText: 2026 Slavi Pantaleev
+# SPDX-FileCopyrightText: 2026 spatterlight
+# SPDX-FileCopyrightText: 2026 Suguru Hirahara
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+---
+# This play does not include the role, so its defaults are not in scope.
+# Reading defaults/main.yml directly ties the assertions below to the values
+# that Renovate bumps, with nothing to keep in sync in this scenario.
+# The `name` keeps these out of the way of the scenario's group_vars.
+#
+# Only leaf values may be read back out of this: most of the file is Jinja
+# referring to other role variables, which cannot resolve in this play.
+- name: Load the Owncast role defaults
+  ansible.builtin.include_vars:
+    file: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
+    name: owncast_defaults
+
+- name: Wait for Owncast service to become active (up to 180s)
+  ansible.builtin.systemd:
+    name: owncast.service
+  register: owncast_service
+  until: owncast_service.status.ActiveState == 'active'
+  retries: 36
+  delay: 5
+
+- name: Assert Owncast service is active
+  ansible.builtin.assert:
+    that: owncast_service.status.ActiveState == 'active'
+    fail_msg: "owncast.service not active ({{ owncast_service.status.ActiveState }})"
+    success_msg: "owncast.service is active"
+
+- name: Retrieve Owncast service log for debugging
+  when: owncast_debug_service_enabled | bool
+  ansible.builtin.command:
+    cmd: journalctl -xeu owncast.service
+  changed_when: false
+
+# Owncast serves its web interface, and answers this endpoint, from the
+# moment it starts - there is no setup wizard to walk through - so this
+# proves only that the HTTP listener is up. It is the wait loop for the
+# real probes below.
+- name: Wait for the Owncast status endpoint to answer (up to 600s)
+  ansible.builtin.uri:
+    url: "{{ owncast_verify_base_url }}/api/status"
+    method: GET
+    status_code: [200, 404, 500, 502, 503]
+    return_content: true
+  register: owncast_status
+  until: owncast_status.status == 200
+  retries: 120
+  delay: 5
+
+- name: Assert the Owncast status endpoint answers
+  ansible.builtin.assert:
+    that: owncast_status.status == 200
+    fail_msg: "The Owncast status endpoint answered {{ owncast_status.status | default('nothing') }}"
+    success_msg: "The Owncast status endpoint answers"
+
+# Tying the running version to `owncast_version` is what makes this scenario
+# a test of the value that Renovate bumps: a bump to an image tag that does
+# not exist, or that cannot serve, cannot pass here.
+#
+# Self-built images are exempt. Upstream's Dockerfile stamps the version from
+# its `VERSION` build argument and defaults it to `dev`, and this role passes
+# no build arguments, so a self-built Owncast cannot report a real version.
+# The image identity assertion further down covers that scenario instead.
+- name: Assert the running Owncast is the version the role asks for
+  when: not (owncast_container_image_self_build | default(false) | bool)
+  ansible.builtin.assert:
+    that: owncast_status.json.versionNumber == owncast_defaults.owncast_version | string
+    fail_msg: >-
+      Owncast reports version {{ owncast_status.json.versionNumber | default('none') }},
+      but the role asks for {{ owncast_defaults.owncast_version }}
+    success_msg: "Owncast reports version {{ owncast_status.json.versionNumber }}"
+
+# The administration API is a separate subsystem from the public web
+# interface, backed by the SQLite database in the data directory the role
+# provisioned. An Owncast that came up without a usable database cannot
+# answer here.
+- name: Request the Owncast admin API without credentials
+  ansible.builtin.uri:
+    url: "{{ owncast_verify_base_url }}/api/admin/serverconfig"
+    method: GET
+    status_code: [200, 401, 403]
+  register: owncast_admin_unauthenticated
+
+- name: Assert the Owncast admin API refuses unauthenticated requests
+  ansible.builtin.assert:
+    that: owncast_admin_unauthenticated.status == 401
+    fail_msg: >-
+      The Owncast admin API answered {{ owncast_admin_unauthenticated.status }}
+      to a request carrying no credentials, rather than refusing it
+    success_msg: "The Owncast admin API refuses unauthenticated requests"
+
+- name: Request the Owncast admin API with a wrong password
+  ansible.builtin.uri:
+    url: "{{ owncast_verify_base_url }}/api/admin/serverconfig"
+    method: GET
+    headers:
+      Authorization: "{{ owncast_verify_wrong_auth_header }}"
+    status_code: [200, 401, 403]
+  register: owncast_admin_wrong_password
+
+- name: Assert the Owncast admin API refuses a wrong password
+  ansible.builtin.assert:
+    that: owncast_admin_wrong_password.status == 401
+    fail_msg: >-
+      The Owncast admin API answered {{ owncast_admin_wrong_password.status }}
+      to a wrong password, rather than refusing it
+    success_msg: "The Owncast admin API refuses a wrong password"
+
+- name: Read the Owncast server configuration through the admin API
+  ansible.builtin.uri:
+    url: "{{ owncast_verify_base_url }}/api/admin/serverconfig"
+    method: GET
+    headers:
+      Authorization: "{{ owncast_verify_admin_auth_header }}"
+    status_code: [200, 401, 403]
+    return_content: true
+  register: owncast_serverconfig
+
+- name: Assert the Owncast admin API serves its configuration
+  ansible.builtin.assert:
+    that:
+      - owncast_serverconfig.status == 200
+      - owncast_serverconfig.json.streamKeys | length > 0
+    fail_msg: >-
+      The Owncast admin API answered {{ owncast_serverconfig.status }}
+      and did not serve a usable configuration
+    success_msg: "The Owncast admin API serves its configuration"
+
+# The ports the role publishes are only useful if Owncast itself listens on
+# the same ones inside the container. These two variables set the container
+# side of the port mapping, so a value that Owncast does not agree with
+# would publish a port that nothing answers on.
+- name: Assert Owncast listens on the ports the role publishes
+  ansible.builtin.assert:
+    that:
+      - owncast_serverconfig.json.webServerPort == owncast_defaults.owncast_container_http_port
+      - owncast_serverconfig.json.rtmpServerPort == owncast_defaults.owncast_container_rtmp_port
+    fail_msg: >-
+      Owncast listens on HTTP port {{ owncast_serverconfig.json.webServerPort }}
+      and RTMP port {{ owncast_serverconfig.json.rtmpServerPort }}, but the role
+      publishes {{ owncast_defaults.owncast_container_http_port }}
+      and {{ owncast_defaults.owncast_container_rtmp_port }}
+    success_msg: >-
+      Owncast listens on the published HTTP port
+      {{ owncast_serverconfig.json.webServerPort }} and RTMP port
+      {{ owncast_serverconfig.json.rtmpServerPort }}
+
+# The public configuration endpoint renders from the same database the admin
+# API just answered from, through the code path the web interface uses.
+- name: Retrieve the Owncast public configuration
+  ansible.builtin.uri:
+    url: "{{ owncast_verify_base_url }}/api/config"
+    method: GET
+    status_code: [200, 404, 500]
+    return_content: true
+  register: owncast_config
+
+- name: Assert Owncast serves its public configuration
+  ansible.builtin.assert:
+    that:
+      - owncast_config.status == 200
+      - owncast_config.json.name | length > 0
+      - "'Owncast' in owncast_config.json.version"
+    fail_msg: >-
+      Owncast did not serve a usable public configuration
+      ({{ owncast_config.json | default('no payload') }})
+    success_msg: >-
+      Owncast serves '{{ owncast_config.json.name }}'
+      running {{ owncast_config.json.version }}
+
+# Everything above would look the same for an Owncast started by hand with
+# `docker run`. What the role adds is how the container is run: as an
+# unprivileged user, with a read-only root filesystem, with every capability
+# dropped, on its own container network. Reading that back off the running
+# container is what proves the role's own work, rather than Owncast's.
+- name: Inspect the Owncast container
+  ansible.builtin.command:
+    cmd: "docker container inspect {{ owncast_defaults.owncast_identifier }}"
+  register: owncast_container_inspect
+  changed_when: false
+
+- name: Parse the Owncast container definition
+  ansible.builtin.set_fact:
+    owncast_container: "{{ (owncast_container_inspect.stdout | from_json)[0] }}"
+
+- name: Assert the Owncast container runs the way the role asks for
+  ansible.builtin.assert:
+    that:
+      - owncast_container.State.Running | bool
+      - owncast_container.HostConfig.ReadonlyRootfs | bool
+      - "'ALL' in owncast_container.HostConfig.CapDrop"
+      - owncast_container.Config.User == (owncast_uid | string) + ':' + (owncast_gid | string)
+      - owncast_defaults.owncast_identifier in owncast_container.NetworkSettings.Networks
+    fail_msg: >-
+      The Owncast container is not hardened as the role asks for
+      (user {{ owncast_container.Config.User | default('none') }},
+      read-only root {{ owncast_container.HostConfig.ReadonlyRootfs | default('unknown') }},
+      dropped capabilities {{ owncast_container.HostConfig.CapDrop | default('none') }},
+      networks {{ owncast_container.NetworkSettings.Networks.keys() | list }})
+    success_msg: >-
+      The Owncast container runs as {{ owncast_container.Config.User }}
+      with a read-only root filesystem and no capabilities, on the
+      '{{ owncast_defaults.owncast_identifier }}' network
+
+# A self-built image reports no meaningful version, so this is what tells the
+# self-build scenario apart from one that quietly fell back to pulling.
+- name: Determine the image this scenario asks for
+  ansible.builtin.set_fact:
+    owncast_expected_image: >-
+      {{
+        'owncast/owncast'
+        if (owncast_container_image_self_build | default(false) | bool)
+        else 'gabekangas/owncast:' + owncast_defaults.owncast_version | string
+      }}
+
+- name: Assert the Owncast container runs the image the scenario asks for
+  ansible.builtin.assert:
+    that: owncast_expected_image in owncast_container.Config.Image
+    fail_msg: >-
+      The Owncast container runs {{ owncast_container.Config.Image }},
+      rather than {{ owncast_expected_image }} which this scenario asks for
+    success_msg: "The Owncast container runs {{ owncast_container.Config.Image }}"
+
+# The RTMP ingest server is a second listener, on a second published port,
+# with its own protocol - none of which the HTTP probes above touch. These
+# two probes drive a real RTMP session far enough for Owncast to commit to
+# accepting or refusing the broadcast, using the stream key that the admin
+# API just handed us. That the key the database holds is the one the ingest
+# server honours is the link between the two subsystems.
+#
+# The wrong key goes first on purpose. Owncast refuses a second broadcaster
+# while one is connected, and it checks for that before it checks the stream
+# key, so a wrong key offered just after a successful broadcast would be
+# refused for the wrong reason and this negative control would prove nothing.
+- name: Broadcast to Owncast over RTMP with a wrong stream key
+  ansible.builtin.script:
+    cmd: >-
+      {{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/molecule/files/rtmp-probe.py
+      localhost
+      {{ owncast_container_rtmp_host_bind_port }}
+      {{ owncast_verify_wrong_stream_key }}
+    executable: python3
+  register: owncast_rtmp_wrong_key
+  changed_when: false
+
+# The handshake still has to succeed here: this must fail because the stream
+# key was refused, not because the probe never reached an RTMP server.
+- name: Assert Owncast refuses a broadcast using a wrong stream key
+  ansible.builtin.assert:
+    that:
+      - (owncast_rtmp_wrong_key.stdout | from_json).handshake_completed | bool
+      - not ((owncast_rtmp_wrong_key.stdout | from_json).publish_accepted | bool)
+    fail_msg: >-
+      The Owncast RTMP server did not refuse a broadcast using a wrong
+      stream key: {{ owncast_rtmp_wrong_key.stdout }}
+    success_msg: "The Owncast RTMP server refuses a broadcast using a wrong stream key"
+
+- name: Broadcast to Owncast over RTMP with the configured stream key
+  ansible.builtin.script:
+    cmd: >-
+      {{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/molecule/files/rtmp-probe.py
+      localhost
+      {{ owncast_container_rtmp_host_bind_port }}
+      {{ owncast_serverconfig.json.streamKeys[0].key }}
+    executable: python3
+  register: owncast_rtmp_configured_key
+  changed_when: false
+
+- name: Assert Owncast accepts a broadcast using the configured stream key
+  ansible.builtin.assert:
+    that:
+      - (owncast_rtmp_configured_key.stdout | from_json).handshake_completed | bool
+      - (owncast_rtmp_configured_key.stdout | from_json).connect_accepted | bool
+      - (owncast_rtmp_configured_key.stdout | from_json).publish_accepted | bool
+    fail_msg: >-
+      The Owncast RTMP server did not accept a broadcast using its own
+      stream key: {{ owncast_rtmp_configured_key.stdout }}
+    success_msg: "The Owncast RTMP server accepts a broadcast using its configured stream key"
+
+- name: Show Owncast verification summary
+  ansible.builtin.debug:
+    msg:
+      - "Owncast systemd: {{ owncast_service.status.ActiveState }}"
+      - "Owncast version: {{ owncast_status.json.versionNumber }}"
+      - "Owncast image: {{ owncast_container.Config.Image }}"
+      - "Instance name: {{ owncast_config.json.name }}"
+      - "HTTP port: {{ owncast_serverconfig.json.webServerPort }}"
+      - "RTMP port: {{ owncast_serverconfig.json.rtmpServerPort }}"
+      - "RTMP with the configured stream key: {{ owncast_rtmp_configured_key.stdout | trim }}"
+      - "RTMP with a wrong stream key: {{ owncast_rtmp_wrong_key.stdout | trim }}"
