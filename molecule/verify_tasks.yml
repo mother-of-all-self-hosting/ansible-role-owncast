@@ -5,14 +5,10 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 ---
-# This play does not include the role, so its defaults are not in scope.
-# Reading defaults/main.yml directly ties the assertions below to the values
-# that Renovate bumps, with nothing to keep in sync in this scenario.
-# The `name` keeps these out of the way of the scenario's group_vars.
-#
-# Only leaf values may be read back out of this: most of the file is Jinja
-# referring to other role variables, which cannot resolve in this play.
-- name: Load the Owncast role defaults
+# The role is not included in this playbook, so its defaults are not in
+# scope. Reading defaults/main.yml directly ties the version assertion
+# below.
+- name: Load the role defaults
   ansible.builtin.include_vars:
     file: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
     name: owncast_defaults
