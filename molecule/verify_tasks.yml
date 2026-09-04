@@ -278,14 +278,14 @@
       stream key: {{ owncast_rtmp_configured_key.stdout }}
     success_msg: "The Owncast RTMP server accepts a broadcast using its configured stream key"
 
-- name: Show Owncast verification summary
+- name: Show the Owncast verification summary
   ansible.builtin.debug:
     msg:
       - "Owncast systemd: {{ owncast_service.status.ActiveState }}"
       - "Owncast version: {{ owncast_status.json.versionNumber }}"
       - "Owncast image: {{ owncast_container.Config.Image }}"
-      - "Instance name: {{ owncast_config.json.name }}"
-      - "HTTP port: {{ owncast_serverconfig.json.webServerPort }}"
-      - "RTMP port: {{ owncast_serverconfig.json.rtmpServerPort }}"
-      - "RTMP with the configured stream key: {{ owncast_rtmp_configured_key.stdout | trim }}"
-      - "RTMP with a wrong stream key: {{ owncast_rtmp_wrong_key.stdout | trim }}"
+      - "Owncast instance name: {{ owncast_config.json.name }}"
+      - "Owncast HTTP port: {{ owncast_serverconfig.json.webServerPort }}"
+      - "Owncast RTMP port: {{ owncast_serverconfig.json.rtmpServerPort }}"
+      - "Owncast RTMP with the configured stream key: {{ owncast_rtmp_configured_key.stdout | trim }}"
+      - "Owncast RTMP with a wrong stream key: {{ owncast_rtmp_wrong_key.stdout | trim }}"
