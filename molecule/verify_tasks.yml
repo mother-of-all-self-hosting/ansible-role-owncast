@@ -54,22 +54,12 @@
     fail_msg: "The Owncast status endpoint answered {{ owncast_status.status | default('nothing') }}"
     success_msg: "The Owncast status endpoint answers"
 
-# Tying the running version to `owncast_version` is what makes this scenario
-# a test of the value that Renovate bumps: a bump to an image tag that does
-# not exist, or that cannot serve, cannot pass here.
-#
-# Self-built images are exempt. Upstream's Dockerfile stamps the version from
-# its `VERSION` build argument and defaults it to `dev`, and this role passes
-# no build arguments, so a self-built Owncast cannot report a real version.
-# The image identity assertion further down covers that scenario instead.
-- name: Assert the running Owncast is the version the role asks for
+- name: Assert the running Owncast is the version this role installs
   when: not (owncast_container_image_self_build | default(false) | bool)
   ansible.builtin.assert:
     that: owncast_status.json.versionNumber == owncast_defaults.owncast_version | string
-    fail_msg: >-
-      Owncast reports version {{ owncast_status.json.versionNumber | default('none') }},
-      but the role asks for {{ owncast_defaults.owncast_version }}
-    success_msg: "Owncast reports version {{ owncast_status.json.versionNumber }}"
+    fail_msg: "Owncast reports {{ owncast_status.json.versionNumber | default('none') }}, expected {{ owncast_defaults.owncast_version }}"
+    success_msg: "Owncast reports {{ owncast_status.json.versionNumber }}"
 
 # The administration API is a separate subsystem from the public web
 # interface, backed by the SQLite database in the data directory the role
