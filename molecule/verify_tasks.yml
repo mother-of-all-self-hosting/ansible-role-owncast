@@ -167,12 +167,12 @@
 - name: Inspect the Owncast container
   ansible.builtin.command:
     cmd: "docker container inspect {{ owncast_defaults.owncast_identifier }}"
-  register: owncast_container_inspect
+  register: owncast_container_raw
   changed_when: false
 
 - name: Parse the Owncast container definition
   ansible.builtin.set_fact:
-    owncast_container: "{{ (owncast_container_inspect.stdout | from_json)[0] }}"
+    owncast_container: "{{ (owncast_container_raw.stdout | from_json)[0] }}"
 
 - name: Assert the Owncast container runs the way the role asks for
   ansible.builtin.assert:
