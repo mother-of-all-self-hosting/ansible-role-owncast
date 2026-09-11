@@ -13,13 +13,14 @@
     file: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
     name: owncast_defaults
 
-- name: Wait for the Owncast systemd service to become active (up to 180s)
+- name: Wait for the Owncast systemd services to become active (up to 180s each)
   ansible.builtin.systemd_service:
-    name: owncast.service
-  register: owncast_service
-  until: owncast_service.status.ActiveState == 'active'
+    name: "{{ item }}"
+  register: owncast_services
+  until: owncast_services.status.ActiveState == 'active'
   retries: 36
   delay: 5
+  loop: "{{ owncast_verify_units }}"
   # So that giving up is reported by the assertion below rather than as a
   # wall of systemd unit properties.
   failed_when: false
@@ -27,17 +28,20 @@
 # `Restart=always` in the systemd unit means that even a container which crashes
 # and gets restarted reads as active here, so this is a precondition rather than
 # a result.
-- name: Assert the Owncast systemd service is active
+- name: Assert the Owncast systemd services are active
   ansible.builtin.assert:
-    that: owncast_service.status.ActiveState == 'active'
-    fail_msg: "owncast.service is not active ({{ owncast_service.status.ActiveState }})"
-    success_msg: "owncast.service is active"
+    that: owncast_services.results | map(attribute='status.ActiveState') | unique | list == ['active']
+    fail_msg: >-
+      Not every service is active:
+      {{ dict(owncast_verify_units | zip(owncast_services.results | map(attribute='status.ActiveState'))) }}
+    success_msg: "Every systemd service is active"
 
-- name: Retrieve the Owncast systemd service log for debugging
+- name: Retrieve the Owncast systemd services log for debugging
   when: owncast_debug_service_enabled | bool
   ansible.builtin.command:
-    cmd: journalctl --no-pager --output=cat --unit=owncast.service
+    cmd: "journalctl --no-pager --output=cat --unit={{ item }}"
   changed_when: false
+  loop: "{{ owncast_verify_units }}"
 
 # Owncast serves its web interface, and answers this endpoint, from the
 # moment it starts - there is no setup wizard to walk through - so this
@@ -277,7 +281,7 @@
 - name: Show the Owncast verification summary
   ansible.builtin.debug:
     msg:
-      - "Owncast systemd: {{ owncast_service.status.ActiveState }}"
+      - "Owncast systemd: {% for unit, state in owncast_verify_units | zip(owncast_services.results | map(attribute='status.ActiveState')) %}{{ unit }} ({{ state }}){% if not loop.last %}, {% endif %}{% endfor %}"
       - "Owncast version: {{ owncast_status.json.versionNumber }}"
       - "Owncast image: {{ owncast_container.Config.Image }}"
       - "Owncast instance name: {{ owncast_config.json.name }}"

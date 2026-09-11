@@ -41,6 +41,9 @@
     owncast_verify_wrong_auth_header: >-
       Basic {{ (owncast_verify_admin_username + ':' + owncast_verify_wrong_admin_password) | b64encode }}
 
+    owncast_verify_units:
+      - owncast.service
+
   tasks:
     - name: Verify that Owncast works
       block:
