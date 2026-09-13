@@ -30,6 +30,7 @@ provisioner:
       all:
         # Helper variables
         owncast_debug_service_enabled: false
+        owncast_restarts_check_enabled: true
 
         # Variables for Owncast
         owncast_uid: 1000
