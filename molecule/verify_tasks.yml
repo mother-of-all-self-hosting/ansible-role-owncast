@@ -176,7 +176,7 @@
 # container is what proves the role's own work, rather than Owncast's.
 - name: Inspect the Owncast container
   ansible.builtin.command:
-    cmd: "docker container inspect {{ owncast_defaults.owncast_identifier }}"
+    cmd: docker container inspect owncast
   register: owncast_container_raw
   changed_when: false
 
