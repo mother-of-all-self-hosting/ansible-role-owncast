@@ -265,8 +265,6 @@ owncast_container_cleanup_command: |
 # Specify the timezone
 owncast_environment_variables_tz: UTC
 
-owncast_basicauth_enabled: true
-
 # Additional environment variables.
 owncast_environment_variables_additional_variables: ""
 
